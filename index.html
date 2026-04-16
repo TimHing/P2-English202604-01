@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小學二年級英語應試閃卡 V2.3 - 主頁快捷版</title>
+    <title>小學應試專家 - 英語記憶閃卡 V2.5</title>
     <style>
         :root {
             --primary-color: #4a90e2;
             --success-color: #2ecc71;
             --accent-color: #f39c12;
             --fav-mode-color: #a29bfe;
+            --tip-color: #ff7675;
             --bg-color: #f8f9fa;
         }
 
@@ -21,30 +22,32 @@
             align-items: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 40px 20px;
-            gap: 30px;
+            padding: 20px;
+            gap: 20px;
         }
 
         .main-wrapper {
             display: flex;
             flex-direction: row;
             align-items: flex-start;
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
-            gap: 40px;
+            gap: 30px;
         }
 
         .instructions {
             flex: 1;
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border-left: 5px solid var(--primary-color);
+            position: sticky;
+            top: 20px;
         }
 
-        .instructions h3 { margin-top: 0; color: var(--primary-color); }
-        .instructions ul { padding-left: 20px; color: #555; line-height: 1.8; }
+        .instructions h3 { margin-top: 0; color: var(--primary-color); font-size: 1.2em; }
+        .instructions ul { padding-left: 18px; color: #555; line-height: 1.6; font-size: 0.9em; }
 
         .learning-area {
             flex: 2;
@@ -54,10 +57,10 @@
         }
 
         .card-container {
-            width: 450px;
-            height: 280px;
+            width: 520px;
+            height: 400px; /* 增加高度以容納大字體 */
             perspective: 1000px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .card-inner {
@@ -76,86 +79,109 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             border-radius: 25px;
-            padding: 30px;
+            padding: 25px;
             box-sizing: border-box;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             background: white;
             border: 2px solid #eee;
         }
 
-        .card-front { color: var(--primary-color); font-size: 32px; font-weight: bold; text-align: center; }
-        .card-back { background-color: #f0f7ff; color: #34495e; transform: rotateY(180deg); font-size: 26px; text-align: center; }
+        .card-front { 
+            color: var(--primary-color); 
+            font-size: 36px; 
+            font-weight: bold; 
+            text-align: center; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding-top: 40px; /* 避開頂部按鈕 */
+        }
+        
+        .card-back { 
+            background-color: #ffffff; 
+            color: #2d3436; 
+            transform: rotateY(180deg); 
+            display: flex; 
+            flex-direction: column;
+            padding-top: 60px; /* 關鍵：確保中文標題不被圖標擋住 */
+            overflow-y: auto;
+        }
 
+        /* 背面資訊排版優化 */
+        .meaning-title { 
+            font-size: 28px; 
+            font-weight: bold; 
+            color: #2d3436; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f2f6;
+        }
+
+        .info-box { 
+            margin-bottom: 15px; 
+            padding: 10px 15px;
+            border-radius: 12px;
+            background: #f9f9f9;
+        }
+
+        .badge { 
+            display: inline-block; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: white; 
+        }
+
+        .badge-memo { background: var(--success-color); }
+        .badge-exam { background: var(--tip-color); }
+
+        /* 字體加大 */
+        .memo-text { font-size: 18px; color: #4b4b4b; line-height: 1.5; display: block; }
+        .exam-text { font-size: 18px; color: #d63031; font-weight: 500; line-height: 1.5; display: block; }
+
+        /* 按鈕樣式保持 */
         .icon-btn {
             position: absolute;
             background: #f1f2f6;
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            z-index: 10;
+            z-index: 20;
         }
 
-        .speaker-btn { top: 20px; left: 20px; color: var(--primary-color); }
-        .fav-btn { top: 20px; right: 20px; color: #ccc; }
+        .speaker-btn { top: 15px; left: 15px; color: var(--primary-color); }
+        .fav-btn { top: 15px; right: 15px; color: #ccc; }
         .fav-btn.active { color: #e74c3c; background: #ffeaa7; }
-        .icon-btn:hover { transform: scale(1.1); background: #dfe4ea; }
 
-        .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 500px; }
-        
-        .btn {
-            padding: 12px 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 15px;
-        }
-
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 15px; display: flex; align-items: center; gap: 5px; }
         .btn-nav { background: #dfe4ea; color: #2f3542; }
         .btn-random { background: var(--primary-color); color: white; }
-        .btn-fav-list { background: var(--accent-color); color: white; }
         .btn-fav-next { background: var(--fav-mode-color); color: white; }
-        .btn-sync { background: #636e72; color: white; font-size: 0.8em; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-fav-list { background: var(--accent-color); color: white; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
 
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 85%; max-width: 550px; border-radius: 15px; }
-        .fav-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
-        
-        .sync-section { margin-top: 20px; padding-top: 15px; border-top: 2px dashed #eee; }
-        textarea { width: 100%; height: 60px; margin: 10px 0; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 12px; box-sizing: border-box; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 85%; max-width: 500px; border-radius: 15px; }
 
         .mode-indicator {
-            background: #ffeaa7;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-            display: none;
-            font-weight: bold;
-            color: #d35400;
+            background: #ffeaa7; padding: 8px 20px; border-radius: 25px; font-size: 1em; margin-bottom: 15px; display: none; font-weight: bold; color: #d35400; border: 1px solid #fab1a0;
         }
 
         @media (max-width: 800px) {
             .main-wrapper { flex-direction: column; }
-            .card-container { width: 90vw; height: 250px; }
-            .btn { font-size: 14px; padding: 10px 12px; }
+            .card-container { width: 90vw; height: 450px; }
         }
     </style>
 </head>
@@ -163,16 +189,16 @@
 
 <div class="main-wrapper">
     <div class="instructions">
-        <h3>📖 快捷溫習說明</h3>
+        <h3>💡 應試專家指導</h3>
         <ul>
-            <li><strong>✨ 生詞下一個</strong>：主頁紫色按鈕。點擊後會直接切換到生詞本內容並跳轉下一個。</li>
-            <li><strong>📚 所有單詞</strong>：温習完生詞後，點擊紫色「所有單詞」按鈕即可恢復全部內容。</li>
-            <li><strong>🔄 同步功能</strong>：在生詞本內可導出代碼，方便在手機/iPad間轉移。</li>
+            <li><strong>重點溫習</strong>：背面文字已加大，請仔細閱讀紅色的「應試訣竅」。</li>
+            <li><strong>聽力結合</strong>：點擊📢聽發音的同時，看著單詞的拼寫結構。</li>
+            <li><strong>標點符號</strong>：句子默寫時，結尾的句號 (.) 和問號 (?) 千萬不能漏。</li>
         </ul>
     </div>
 
     <div class="learning-area">
-        <div id="modeTag" class="mode-indicator">🔍 正在重點溫習生詞本</div>
+        <div id="modeTag" class="mode-indicator">🔍 重點溫習生詞模式</div>
         
         <div class="card-container">
             <div class="card-inner" id="cardInner" onclick="flipCard()">
@@ -182,9 +208,8 @@
                 <div class="card-front">
                     <div id="wordDisplay">...</div>
                 </div>
-                <div class="card-back">
-                    <div id="meaningDisplay">...</div>
-                </div>
+                <div class="card-back" id="cardBack">
+                    </div>
             </div>
         </div>
 
@@ -197,7 +222,7 @@
             <button id="resetModeBtn" class="btn btn-nav" onclick="exitFavMode()" style="display:none; background:#a29bfe; color:white;">📚 所有單詞</button>
         </div>
         
-        <p id="progress" style="margin-top: 20px; color: #666;">進度: 1 / 21</p>
+        <p id="progress" style="margin-top: 20px; color: #666; font-size: 1em;">進度: 1 / 21</p>
     </div>
 </div>
 
@@ -205,39 +230,42 @@
     <div class="modal-content">
         <h3>⭐ 我的生詞本</h3>
         <div id="favList" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
-        
-        <button class="btn btn-random" onclick="enterFavMode()" style="width: 100%; justify-content: center; margin-bottom: 10px;">🚀 進入生詞溫習模式</button>
-        
-        <div class="sync-section">
-            <p style="font-size: 0.85em; color: #666; margin: 0;">🔄 跨設備同步：</p>
-            <textarea id="syncData" placeholder="在此粘貼備份代碼..."></textarea>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-sync" onclick="exportData()" style="flex:1">📤 導出備份</button>
-                <button class="btn btn-sync" onclick="importData()" style="flex:1">📥 導入恢復</button>
+        <div class="sync-section" style="border-top:1px solid #eee; padding-top:10px;">
+            <p style="font-size:0.8em; color:#999;">同步代碼：</p>
+            <textarea id="syncData" style="width:100%; height:40px; font-size:10px; border-radius: 5px; border: 1px solid #ddd;"></textarea>
+            <div style="display:flex; gap:5px; margin-top:5px;">
+                <button class="btn btn-nav" onclick="exportData()" style="flex:1; font-size:12px; justify-content: center;">導出</button>
+                <button class="btn btn-nav" onclick="importData()" style="flex:1; font-size:12px; justify-content: center;">導入</button>
             </div>
         </div>
-
         <button class="btn btn-nav" onclick="closeModal()" style="width: 100%; justify-content: center; margin-top: 15px;">關閉</button>
     </div>
 </div>
 
 <script>
+    // 數據庫保持完整，新增了更詳細的應試指導
     const allData = [
-        {w: "eat ice cream", m: "吃雪糕"}, {w: "go to the beach", m: "去海灘"},
-        {w: "spring", m: "春天"}, {w: "eat ice lollies", m: "吃雪條"},
-        {w: "go to the park", m: "去公園"}, {w: "summer", m: "夏天"},
-        {w: "have hotpot", m: "吃火鍋"}, {w: "have a barbecue", m: "燒烤"},
-        {w: "autumn", m: "秋天"}, {w: "swim in the sea", m: "在海中游泳"},
-        {w: "play on the slide", m: "玩溜滑梯"}, {w: "winter", m: "冬天"},
-        {w: "What is the weather like?", m: "天氣怎麼樣？"},
-        {w: "It is hot and dry.", m: "天氣炎熱且乾燥。"},
-        {w: "They have gloves.", m: "他們有手套。"},
-        {w: "Their scarves are brown.", m: "他們的圍巾是啡色的。"},
-        {w: "She has a coat.", m: "她有一件大衣。"},
-        {w: "Her jumper is blue.", m: "她的毛衣是藍色的。"},
-        {w: "The dog has boots.", m: "小狗有靴子。"},
-        {w: "Its raincoat is new.", m: "它的雨衣是新的。"},
-        {w: "Ben wears his sunglasses and his cap.", m: "Ben 戴著他的太陽眼鏡和帽子。"}
+        {w: "eat ice cream", m: "吃雪糕", memo: "ice (冰) + cream (奶油)。", exam: "ice 是 i-c-e，不要寫成 i-s-e。注意兩個單詞分開寫。"},
+        {w: "go to the beach", m: "去海灘", memo: "beach 裡的 ea 發長音 /i:/。", exam: "結尾是 ch，不是 sh。beach 複數是 beaches。"},
+        {w: "spring", m: "春天", memo: "想像花朵彈(spring)出來了。", exam: "注意結尾是 ng。"},
+        {w: "eat ice lollies", m: "吃雪條", memo: "lolly 的複數要把 y 改為 i 再加 es。", exam: "lollies 有兩個 l，複數變換是常考點。"},
+        {w: "go to the park", m: "去公園", memo: "p + ark (方舟)。", exam: "注意發音，不要寫成 pork (豬肉)。"},
+        {w: "summer", m: "夏天", memo: "夏天太陽猛，所以有兩個 m。", exam: "必考：雙寫 m (s-u-m-m-e-r)。"},
+        {w: "have hotpot", m: "吃火鍋", memo: "hot (熱) + pot (鍋)。", exam: "hotpot 通常連寫，注意單詞拼寫。"},
+        {w: "have a barbecue", m: "燒烤", memo: "簡寫 BBQ。注意 cue 的拼法。", exam: "b-a-r-b-e-c-u-e，中間的 e 最容易漏。"},
+        {w: "autumn", m: "秋天", memo: "au + tumn。想像落葉掉在 (n) 地上。", exam: "五星難度！結尾的 n 不發音，但必須寫。"},
+        {w: "swim in the sea", m: "在海中游泳", memo: "swim 在進行式時要雙寫 m (swimming)。", exam: "sea (大海) vs see (看見)，不要寫錯。"},
+        {w: "play on the slide", m: "玩溜滑梯", memo: "sl + ide。s 開頭的詞通常表示平滑。", exam: "注意結尾有不發音的 e。"},
+        {w: "winter", m: "冬天", memo: "win (贏) + ter。", exam: "簡單詞，注意發音。"},
+        {w: "What is the weather like?", m: "天氣怎麼樣？", memo: "Weather (天氣) 中間有 ea。", exam: "句首 W 大寫！結尾必須有問號 (?)。"},
+        {w: "It is hot and dry.", m: "天氣炎熱且乾燥。", memo: "dry (乾) 反義詞是 wet (濕)。", exam: "句號 (.) 結尾。不要漏掉 is。"},
+        {w: "They have gloves.", m: "他們有手套。", memo: "gloves 複數，因為手套有兩隻。", exam: "They 是首字母大寫。gloves 中間是 o。"},
+        {w: "Their scarves are brown.", m: "他們的圍巾是啡色的。", memo: "Their 是『他們的』(屬格)。", exam: "Their 不要寫成 There。scarves 是複數型。"},
+        {w: "She has a coat.", m: "她有一件大衣。", memo: "coat 中間是 oa。", exam: "單數 She 配合 has 使用。"},
+        {w: "Her jumper is blue.", m: "她的毛衣是藍色的。", memo: "jumper 是英式叫法。", exam: "Her 代表『她的』。blue 結尾是 e。"},
+        {w: "The dog has boots.", m: "小狗有靴子。", memo: "boots 兩隻鞋，所以用複數。", exam: "dog 是單數，所以動詞用 has。"},
+        {w: "Its raincoat is new.", m: "它的雨衣是新的。", memo: "Its 是屬格，沒有撇號！", exam: "絕對陷阱：Its 不要寫成 It's。"},
+        {w: "Ben wears his sunglasses and his cap.", m: "Ben 戴著他的太陽眼鏡和帽子。", memo: "Ben 是單數，動詞加 s (wears)。", exam: "Ben 人名要大寫。sunglasses 有兩個 s。"}
     ];
 
     let currentList = allData;
@@ -248,13 +276,33 @@
     function updateUI() {
         if (currentList.length === 0) {
             document.getElementById('wordDisplay').innerText = "生詞本是空的";
-            document.getElementById('meaningDisplay').innerText = "請先按 ❤️ 收藏單詞";
+            document.getElementById('cardBack').innerHTML = `<div class="meaning-title">請先收藏單詞</div>`;
             document.getElementById('progress').innerText = "0 / 0";
             return;
         }
         const item = currentList[currentIndex];
         document.getElementById('wordDisplay').innerText = item.w;
-        document.getElementById('meaningDisplay').innerText = item.m;
+        
+        // 渲染背面
+        let backHtml = `<div class="meaning-title">${item.m}</div>`;
+        
+        if (item.memo) {
+            backHtml += `
+                <div class="info-box">
+                    <span class="badge badge-memo">💡 記憶方法</span>
+                    <span class="memo-text">${item.memo}</span>
+                </div>`;
+        }
+        
+        if (item.exam) {
+            backHtml += `
+                <div class="info-box">
+                    <span class="badge badge-exam">🎯 應試全默對訣竅</span>
+                    <span class="exam-text">${item.exam}</span>
+                </div>`;
+        }
+        
+        document.getElementById('cardBack').innerHTML = backHtml;
         document.getElementById('progress').innerText = `進度: ${currentIndex + 1} / ${currentList.length}`;
         
         const isFav = favorites.some(f => f.w === item.w);
@@ -282,17 +330,13 @@
         updateUI();
     }
 
-    // 新增：主頁快捷生詞下一個
     function quickFavNext() {
         if (favorites.length === 0) {
-            alert("你的生詞本還沒有單詞喔！請先點擊心形 ❤️ 收藏不熟的單詞。");
+            alert("生詞本還是空的，請先按 ❤️ 收藏不熟的單詞。");
             return;
         }
-        if (!isFavMode) {
-            enterFavMode();
-        } else {
-            nextCard();
-        }
+        if (!isFavMode) enterFavMode();
+        else nextCard();
     }
 
     function enterFavMode() {
@@ -315,43 +359,19 @@
         updateUI();
     }
 
-    function exportData() {
-        if (favorites.length === 0) { alert("沒有單詞可導出。"); return; }
-        const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(favorites))));
-        document.getElementById('syncData').value = encoded;
-        document.getElementById('syncData').select();
-        document.execCommand('copy');
-        alert("代碼已複製！");
-    }
-
-    function importData() {
-        const val = document.getElementById('syncData').value.trim();
-        if (!val) return;
-        try {
-            const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
-            if (Array.isArray(decoded)) {
-                favorites = decoded;
-                localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
-                showFavorites();
-                updateUI();
-                alert("導入成功！");
-            }
-        } catch (e) { alert("代碼無效。"); }
-    }
-
     function speakWord(event) {
         event.stopPropagation();
         if (currentList.length === 0) return;
         const text = currentList[currentIndex].w;
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-GB';
-        utterance.rate = 0.85;
+        utterance.rate = 0.8;
         window.speechSynthesis.speak(utterance);
     }
 
     function toggleFavorite(event) {
         event.stopPropagation();
-        const item = isFavMode ? currentList[currentIndex] : allData[currentIndex];
+        const item = currentList[currentIndex];
         const idx = favorites.findIndex(f => f.w === item.w);
         if (idx > -1) {
             favorites.splice(idx, 1);
@@ -370,11 +390,7 @@
         const list = document.getElementById('favList');
         list.innerHTML = favorites.length ? '' : '<p>暫無收藏</p>';
         favorites.forEach((item, i) => {
-            list.innerHTML += `
-                <div class="fav-item">
-                    <span>${item.w}</span>
-                    <button class="btn" style="background:#ff7675; color:white; padding:5px 10px;" onclick="removeFav(event, ${i})">移除</button>
-                </div>`;
+            list.innerHTML += `<div class="fav-item" style="display:flex; justify-content:space-between; margin-bottom:5px; padding:5px; border-bottom:1px solid #eee;"><span>${item.w}</span><button onclick="removeFav(event, ${i})" style="color:red; cursor:pointer;">移除</button></div>`;
         });
         document.getElementById('favModal').style.display = 'block';
     }
@@ -386,6 +402,25 @@
         showFavorites();
         if (isFavMode && favorites.length === 0) exitFavMode();
         updateUI();
+    }
+
+    function exportData() {
+        const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(favorites))));
+        document.getElementById('syncData').value = encoded;
+        document.getElementById('syncData').select();
+        document.execCommand('copy');
+        alert("代碼已複製！");
+    }
+
+    function importData() {
+        try {
+            const val = document.getElementById('syncData').value;
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
+            favorites = decoded;
+            localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
+            updateUI();
+            alert("導入成功！");
+        } catch (e) { alert("代碼無效。"); }
     }
 
     function closeModal() { document.getElementById('favModal').style.display = 'none'; }
