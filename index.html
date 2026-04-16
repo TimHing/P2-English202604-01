@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小學二年級英語應試閃卡 V2.0</title>
+    <title>小學二年級英語應試閃卡 V2.1 - 生詞增強版</title>
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -24,7 +24,6 @@
             gap: 30px;
         }
 
-        /* 佈局容器 */
         .main-wrapper {
             display: flex;
             flex-direction: row;
@@ -34,7 +33,6 @@
             gap: 40px;
         }
 
-        /* 左側說明欄 */
         .instructions {
             flex: 1;
             background: white;
@@ -47,7 +45,6 @@
         .instructions h3 { margin-top: 0; color: var(--primary-color); }
         .instructions ul { padding-left: 20px; color: #555; line-height: 1.8; }
 
-        /* 右側學習區 */
         .learning-area {
             flex: 2;
             display: flex;
@@ -55,7 +52,6 @@
             align-items: center;
         }
 
-        /* 卡片設計 */
         .card-container {
             width: 450px;
             height: 280px;
@@ -94,7 +90,6 @@
         .card-front { color: var(--primary-color); font-size: 32px; font-weight: bold; text-align: center; }
         .card-back { background-color: #f0f7ff; color: #34495e; transform: rotateY(180deg); font-size: 26px; text-align: center; }
 
-        /* 功能按鈕 */
         .icon-btn {
             position: absolute;
             background: #f1f2f6;
@@ -116,7 +111,6 @@
         .fav-btn.active { color: #e74c3c; background: #ffeaa7; }
         .icon-btn:hover { transform: scale(1.1); background: #dfe4ea; }
 
-        /* 控制按鈕組 */
         .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         
         .btn {
@@ -136,11 +130,19 @@
         .btn-fav-list { background: var(--accent-color); color: white; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* 模態框與列表 */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 10% auto; padding: 25px; width: 80%; max-width: 500px; border-radius: 15px; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 80%; max-width: 550px; border-radius: 15px; }
         .fav-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
         
+        .mode-indicator {
+            background: #ffeaa7;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: none;
+        }
+
         @media (max-width: 800px) {
             .main-wrapper { flex-direction: column; }
             .card-container { width: 90vw; }
@@ -153,16 +155,16 @@
     <div class="instructions">
         <h3>📖 使用說明</h3>
         <ul>
-            <li><strong>點擊卡片</strong>：可進行 3D 翻轉查看中文釋義。</li>
-            <li><strong>📢 喇叭圖示</strong>：點擊聽取標準英式英語發音。</li>
-            <li><strong>❤️ 心形圖示</strong>：將難記的單詞加入「生詞本」。</li>
-            <li><strong>順序控制</strong>：使用「上一個」或「下一個」按順序温習。</li>
-            <li><strong>自動保存</strong>：你的生詞本會儲存在瀏覽器，下次打開還在。</li>
+            <li><strong>溫習生詞</strong>：在「生詞本」中點擊「溫習模式」，即可只練習你收藏的單詞。</li>
+            <li><strong>📢 聽發音</strong>：點擊喇叭聽取標準英式英語發音。</li>
+            <li><strong>❤️ 收藏</strong>：點擊心形將難記單詞加入生詞本。</li>
+            <li><strong>切換模式</strong>：隨時可以使用「所有單詞」按鈕回到完整清單。</li>
         </ul>
-        <p style="font-size: 0.9em; color: #888; margin-top: 20px;">* 建議在安靜環境下練習發音。</p>
     </div>
 
     <div class="learning-area">
+        <div id="modeTag" class="mode-indicator">🔍 正在溫習生詞本</div>
+        
         <div class="card-container">
             <div class="card-inner" id="cardInner" onclick="flipCard()">
                 <button class="icon-btn speaker-btn" onclick="speakWord(event)">📢</button>
@@ -179,9 +181,10 @@
 
         <div class="controls">
             <button class="btn btn-nav" onclick="prevCard()">⬅ 上一個</button>
-            <button class="btn btn-random" onclick="randomCard()">🔀 隨機</button>
+            <button id="mainActionBtn" class="btn btn-random" onclick="randomCard()">🔀 隨機</button>
             <button class="btn btn-nav" onclick="nextCard()">下一個 ➡</button>
-            <button class="btn btn-fav-list" onclick="showFavorites()">⭐ 查看生詞本</button>
+            <button class="btn btn-fav-list" onclick="showFavorites()">⭐ 生詞本</button>
+            <button id="resetModeBtn" class="btn btn-nav" onclick="exitFavMode()" style="display:none; background:#a29bfe;">📚 所有單詞</button>
         </div>
         
         <p id="progress" style="margin-top: 20px; color: #666;">進度: 1 / 21</p>
@@ -191,14 +194,16 @@
 <div id="favModal" class="modal">
     <div class="modal-content">
         <h3>⭐ 我的生詞本</h3>
-        <div id="favList" style="max-height: 300px; overflow-y: auto;"></div>
-        <br>
-        <button class="btn btn-nav" onclick="closeModal()" style="width: 100%; justify-content: center;">關閉</button>
+        <div id="favList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-random" id="startFavModeBtn" onclick="enterFavMode()" style="flex: 1; justify-content: center;">🚀 開始溫習生詞</button>
+            <button class="btn btn-nav" onclick="closeModal()" style="flex: 1; justify-content: center;">關閉</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const data = [
+    const allData = [
         {w: "eat ice cream", m: "吃雪糕"}, {w: "go to the beach", m: "去海灘"},
         {w: "spring", m: "春天"}, {w: "eat ice lollies", m: "吃雪條"},
         {w: "go to the park", m: "去公園"}, {w: "summer", m: "夏天"},
@@ -216,14 +221,22 @@
         {w: "Ben wears his sunglasses and his cap.", m: "Ben 戴著他的太陽眼鏡和帽子。"}
     ];
 
+    let currentList = allData;
     let currentIndex = 0;
+    let isFavMode = false;
     let favorites = JSON.parse(localStorage.getItem('hkSchool_WordBank')) || [];
 
     function updateUI() {
-        const item = data[currentIndex];
+        if (currentList.length === 0) {
+            document.getElementById('wordDisplay').innerText = "生詞本是空的";
+            document.getElementById('meaningDisplay').innerText = "請先收藏單詞";
+            document.getElementById('progress').innerText = "0 / 0";
+            return;
+        }
+        const item = currentList[currentIndex];
         document.getElementById('wordDisplay').innerText = item.w;
         document.getElementById('meaningDisplay').innerText = item.m;
-        document.getElementById('progress').innerText = `進度: ${currentIndex + 1} / ${data.length}`;
+        document.getElementById('progress').innerText = `進度: ${currentIndex + 1} / ${currentList.length}`;
         
         const isFav = favorites.some(f => f.w === item.w);
         document.getElementById('favIcon').classList.toggle('active', isFav);
@@ -233,35 +246,73 @@
     function flipCard() { document.getElementById('cardInner').classList.toggle('flipped'); }
 
     function nextCard() {
-        currentIndex = (currentIndex + 1) % data.length;
+        if (currentList.length === 0) return;
+        currentIndex = (currentIndex + 1) % currentList.length;
         updateUI();
     }
 
     function prevCard() {
-        currentIndex = (currentIndex - 1 + data.length) % data.length;
+        if (currentList.length === 0) return;
+        currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
         updateUI();
     }
 
     function randomCard() {
-        currentIndex = Math.floor(Math.random() * data.length);
+        if (currentList.length === 0) return;
+        currentIndex = Math.floor(Math.random() * currentList.length);
+        updateUI();
+    }
+
+    function enterFavMode() {
+        if (favorites.length === 0) {
+            alert("你的生詞本還沒有單詞喔！");
+            return;
+        }
+        currentList = favorites;
+        currentIndex = 0;
+        isFavMode = true;
+        document.getElementById('modeTag').style.display = 'block';
+        document.getElementById('resetModeBtn').style.display = 'flex';
+        closeModal();
+        updateUI();
+    }
+
+    function exitFavMode() {
+        currentList = allData;
+        currentIndex = 0;
+        isFavMode = false;
+        document.getElementById('modeTag').style.display = 'none';
+        document.getElementById('resetModeBtn').style.display = 'none';
         updateUI();
     }
 
     function speakWord(event) {
         event.stopPropagation();
-        const text = data[currentIndex].w;
+        if (currentList.length === 0) return;
+        const text = currentList[currentIndex].w;
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-GB'; // 強制英式英語
-        utterance.rate = 0.9;    // 語速稍慢，適合小學生
+        utterance.lang = 'en-GB';
+        utterance.rate = 0.85;
         window.speechSynthesis.speak(utterance);
     }
 
     function toggleFavorite(event) {
         event.stopPropagation();
-        const item = data[currentIndex];
+        const item = isFavMode ? currentList[currentIndex] : allData[currentIndex];
         const idx = favorites.findIndex(f => f.w === item.w);
-        if (idx > -1) favorites.splice(idx, 1);
-        else favorites.push(item);
+        
+        if (idx > -1) {
+            favorites.splice(idx, 1);
+            if (isFavMode) {
+                if (favorites.length === 0) {
+                    exitFavMode();
+                } else {
+                    currentIndex = currentIndex % favorites.length;
+                }
+            }
+        } else {
+            favorites.push(item);
+        }
         localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
         updateUI();
     }
@@ -273,22 +324,23 @@
             list.innerHTML += `
                 <div class="fav-item">
                     <span>${item.w}</span>
-                    <button class="btn" style="background:#ff7675; color:white; padding:5px 10px;" onclick="removeFav(${i})">移除</button>
+                    <button class="btn" style="background:#ff7675; color:white; padding:5px 10px;" onclick="removeFav(event, ${i})">移除</button>
                 </div>`;
         });
         document.getElementById('favModal').style.display = 'block';
     }
 
-    function removeFav(i) {
+    function removeFav(event, i) {
+        event.stopPropagation();
         favorites.splice(i, 1);
         localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
         showFavorites();
+        if (isFavMode && favorites.length === 0) exitFavMode();
         updateUI();
     }
 
     function closeModal() { document.getElementById('favModal').style.display = 'none'; }
 
-    // 初始化界面
     updateUI();
 </script>
 </body>
