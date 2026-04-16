@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小學二年級英語應試閃卡 V2.0</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --accent-color: #f39c12;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            gap: 30px;
+        }
+
+        /* 佈局容器 */
+        .main-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            max-width: 1000px;
+            width: 100%;
+            gap: 40px;
+        }
+
+        /* 左側說明欄 */
+        .instructions {
+            flex: 1;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .instructions h3 { margin-top: 0; color: var(--primary-color); }
+        .instructions ul { padding-left: 20px; color: #555; line-height: 1.8; }
+
+        /* 右側學習區 */
+        .learning-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 卡片設計 */
+        .card-container {
+            width: 450px;
+            height: 280px;
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card-inner.flipped { transform: rotateY(180deg); }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 25px;
+            padding: 30px;
+            box-sizing: border-box;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            background: white;
+            border: 2px solid #eee;
+        }
+
+        .card-front { color: var(--primary-color); font-size: 32px; font-weight: bold; text-align: center; }
+        .card-back { background-color: #f0f7ff; color: #34495e; transform: rotateY(180deg); font-size: 26px; text-align: center; }
+
+        /* 功能按鈕 */
+        .icon-btn {
+            position: absolute;
+            background: #f1f2f6;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            z-index: 10;
+        }
+
+        .speaker-btn { top: 20px; left: 20px; color: var(--primary-color); }
+        .fav-btn { top: 20px; right: 20px; color: #ccc; }
+        .fav-btn.active { color: #e74c3c; background: #ffeaa7; }
+        .icon-btn:hover { transform: scale(1.1); background: #dfe4ea; }
+
+        /* 控制按鈕組 */
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-nav { background: #dfe4ea; color: #2f3542; }
+        .btn-random { background: var(--primary-color); color: white; }
+        .btn-fav-list { background: var(--accent-color); color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* 模態框與列表 */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+        .modal-content { background: white; margin: 10% auto; padding: 25px; width: 80%; max-width: 500px; border-radius: 15px; }
+        .fav-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
+        
+        @media (max-width: 800px) {
+            .main-wrapper { flex-direction: column; }
+            .card-container { width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="instructions">
+        <h3>📖 使用說明</h3>
+        <ul>
+            <li><strong>點擊卡片</strong>：可進行 3D 翻轉查看中文釋義。</li>
+            <li><strong>📢 喇叭圖示</strong>：點擊聽取標準英式英語發音。</li>
+            <li><strong>❤️ 心形圖示</strong>：將難記的單詞加入「生詞本」。</li>
+            <li><strong>順序控制</strong>：使用「上一個」或「下一個」按順序温習。</li>
+            <li><strong>自動保存</strong>：你的生詞本會儲存在瀏覽器，下次打開還在。</li>
+        </ul>
+        <p style="font-size: 0.9em; color: #888; margin-top: 20px;">* 建議在安靜環境下練習發音。</p>
+    </div>
+
+    <div class="learning-area">
+        <div class="card-container">
+            <div class="card-inner" id="cardInner" onclick="flipCard()">
+                <button class="icon-btn speaker-btn" onclick="speakWord(event)">📢</button>
+                <button class="icon-btn fav-btn" id="favIcon" onclick="toggleFavorite(event)">❤</button>
+                
+                <div class="card-front">
+                    <div id="wordDisplay">...</div>
+                </div>
+                <div class="card-back">
+                    <div id="meaningDisplay">...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-nav" onclick="prevCard()">⬅ 上一個</button>
+            <button class="btn btn-random" onclick="randomCard()">🔀 隨機</button>
+            <button class="btn btn-nav" onclick="nextCard()">下一個 ➡</button>
+            <button class="btn btn-fav-list" onclick="showFavorites()">⭐ 查看生詞本</button>
+        </div>
+        
+        <p id="progress" style="margin-top: 20px; color: #666;">進度: 1 / 21</p>
+    </div>
+</div>
+
+<div id="favModal" class="modal">
+    <div class="modal-content">
+        <h3>⭐ 我的生詞本</h3>
+        <div id="favList" style="max-height: 300px; overflow-y: auto;"></div>
+        <br>
+        <button class="btn btn-nav" onclick="closeModal()" style="width: 100%; justify-content: center;">關閉</button>
+    </div>
+</div>
+
+<script>
+    const data = [
+        {w: "eat ice cream", m: "吃雪糕"}, {w: "go to the beach", m: "去海灘"},
+        {w: "spring", m: "春天"}, {w: "eat ice lollies", m: "吃雪條"},
+        {w: "go to the park", m: "去公園"}, {w: "summer", m: "夏天"},
+        {w: "have hotpot", m: "吃火鍋"}, {w: "have a barbecue", m: "燒烤"},
+        {w: "autumn", m: "秋天"}, {w: "swim in the sea", m: "在海中游泳"},
+        {w: "play on the slide", m: "玩溜滑梯"}, {w: "winter", m: "冬天"},
+        {w: "What is the weather like?", m: "天氣怎麼樣？"},
+        {w: "It is hot and dry.", m: "天氣炎熱且乾燥。"},
+        {w: "They have gloves.", m: "他們有手套。"},
+        {w: "Their scarves are brown.", m: "他們的圍巾是啡色的。"},
+        {w: "She has a coat.", m: "她有一件大衣。"},
+        {w: "Her jumper is blue.", m: "她的毛衣是藍色的。"},
+        {w: "The dog has boots.", m: "小狗有靴子。"},
+        {w: "Its raincoat is new.", m: "它的雨衣是新的。"},
+        {w: "Ben wears his sunglasses and his cap.", m: "Ben 戴著他的太陽眼鏡和帽子。"}
+    ];
+
+    let currentIndex = 0;
+    let favorites = JSON.parse(localStorage.getItem('hkSchool_WordBank')) || [];
+
+    function updateUI() {
+        const item = data[currentIndex];
+        document.getElementById('wordDisplay').innerText = item.w;
+        document.getElementById('meaningDisplay').innerText = item.m;
+        document.getElementById('progress').innerText = `進度: ${currentIndex + 1} / ${data.length}`;
+        
+        const isFav = favorites.some(f => f.w === item.w);
+        document.getElementById('favIcon').classList.toggle('active', isFav);
+        document.getElementById('cardInner').classList.remove('flipped');
+    }
+
+    function flipCard() { document.getElementById('cardInner').classList.toggle('flipped'); }
+
+    function nextCard() {
+        currentIndex = (currentIndex + 1) % data.length;
+        updateUI();
+    }
+
+    function prevCard() {
+        currentIndex = (currentIndex - 1 + data.length) % data.length;
+        updateUI();
+    }
+
+    function randomCard() {
+        currentIndex = Math.floor(Math.random() * data.length);
+        updateUI();
+    }
+
+    function speakWord(event) {
+        event.stopPropagation();
+        const text = data[currentIndex].w;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-GB'; // 強制英式英語
+        utterance.rate = 0.9;    // 語速稍慢，適合小學生
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleFavorite(event) {
+        event.stopPropagation();
+        const item = data[currentIndex];
+        const idx = favorites.findIndex(f => f.w === item.w);
+        if (idx > -1) favorites.splice(idx, 1);
+        else favorites.push(item);
+        localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
+        updateUI();
+    }
+
+    function showFavorites() {
+        const list = document.getElementById('favList');
+        list.innerHTML = favorites.length ? '' : '<p>暫無收藏</p>';
+        favorites.forEach((item, i) => {
+            list.innerHTML += `
+                <div class="fav-item">
+                    <span>${item.w}</span>
+                    <button class="btn" style="background:#ff7675; color:white; padding:5px 10px;" onclick="removeFav(${i})">移除</button>
+                </div>`;
+        });
+        document.getElementById('favModal').style.display = 'block';
+    }
+
+    function removeFav(i) {
+        favorites.splice(i, 1);
+        localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
+        showFavorites();
+        updateUI();
+    }
+
+    function closeModal() { document.getElementById('favModal').style.display = 'none'; }
+
+    // 初始化界面
+    updateUI();
+</script>
+</body>
+</html>
