@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小學二年級英語應試閃卡 V2.1 - 生詞增強版</title>
+    <title>小學二年級英語應試閃卡 V2.2 - 備份同步版</title>
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -128,12 +128,30 @@
         .btn-nav { background: #dfe4ea; color: #2f3542; }
         .btn-random { background: var(--primary-color); color: white; }
         .btn-fav-list { background: var(--accent-color); color: white; }
+        .btn-sync { background: #636e72; color: white; font-size: 0.8em; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
 
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 80%; max-width: 550px; border-radius: 15px; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 85%; max-width: 550px; border-radius: 15px; }
         .fav-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
         
+        .sync-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #eee;
+        }
+
+        textarea {
+            width: 100%;
+            height: 60px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+
         .mode-indicator {
             background: #ffeaa7;
             padding: 5px 15px;
@@ -155,10 +173,9 @@
     <div class="instructions">
         <h3>📖 使用說明</h3>
         <ul>
-            <li><strong>溫習生詞</strong>：在「生詞本」中點擊「溫習模式」，即可只練習你收藏的單詞。</li>
+            <li><strong>跨設備同步</strong>：點擊「生詞本」底部的「導出備份」，將代碼發送到新設備，在新設備點擊「導入恢復」即可。</li>
+            <li><strong>溫習模式</strong>：進入生詞本點擊「🚀 開始溫習」。</li>
             <li><strong>📢 聽發音</strong>：點擊喇叭聽取標準英式英語發音。</li>
-            <li><strong>❤️ 收藏</strong>：點擊心形將難記單詞加入生詞本。</li>
-            <li><strong>切換模式</strong>：隨時可以使用「所有單詞」按鈕回到完整清單。</li>
         </ul>
     </div>
 
@@ -181,7 +198,7 @@
 
         <div class="controls">
             <button class="btn btn-nav" onclick="prevCard()">⬅ 上一個</button>
-            <button id="mainActionBtn" class="btn btn-random" onclick="randomCard()">🔀 隨機</button>
+            <button class="btn btn-random" onclick="randomCard()">🔀 隨機</button>
             <button class="btn btn-nav" onclick="nextCard()">下一個 ➡</button>
             <button class="btn btn-fav-list" onclick="showFavorites()">⭐ 生詞本</button>
             <button id="resetModeBtn" class="btn btn-nav" onclick="exitFavMode()" style="display:none; background:#a29bfe;">📚 所有單詞</button>
@@ -194,11 +211,20 @@
 <div id="favModal" class="modal">
     <div class="modal-content">
         <h3>⭐ 我的生詞本</h3>
-        <div id="favList" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-random" id="startFavModeBtn" onclick="enterFavMode()" style="flex: 1; justify-content: center;">🚀 開始溫習生詞</button>
-            <button class="btn btn-nav" onclick="closeModal()" style="flex: 1; justify-content: center;">關閉</button>
+        <div id="favList" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+        
+        <button class="btn btn-random" id="startFavModeBtn" onclick="enterFavMode()" style="width: 100%; justify-content: center; margin-bottom: 10px;">🚀 開始溫習生詞</button>
+        
+        <div class="sync-section">
+            <p style="font-size: 0.85em; color: #666; margin: 0;">🔄 跨設備同步：</p>
+            <textarea id="syncData" placeholder="在此粘貼備份代碼..."></textarea>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-sync" onclick="exportData()" style="flex:1">📤 導出備份</button>
+                <button class="btn btn-sync" onclick="importData()" style="flex:1">📥 導入恢復</button>
+            </div>
         </div>
+
+        <button class="btn btn-nav" onclick="closeModal()" style="width: 100%; justify-content: center; margin-top: 15px;">關閉</button>
     </div>
 </div>
 
@@ -218,7 +244,7 @@
         {w: "Her jumper is blue.", m: "她的毛衣是藍色的。"},
         {w: "The dog has boots.", m: "小狗有靴子。"},
         {w: "Its raincoat is new.", m: "它的雨衣是新的。"},
-        {w: "Ben wears his sunglasses and his cap.", m: "Ben 戴著他的太陽眼鏡和帽子。"}
+        {w: "Ben wears his sunglasses and his cap.", m: "Ben 戴著他的太陽眼鏡 and 他的帽子。"}
     ];
 
     let currentList = allData;
@@ -263,6 +289,42 @@
         updateUI();
     }
 
+    // 備份功能
+    function exportData() {
+        if (favorites.length === 0) {
+            alert("生詞本沒有單詞可以導出。");
+            return;
+        }
+        const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(favorites))));
+        document.getElementById('syncData').value = encoded;
+        document.getElementById('syncData').select();
+        document.execCommand('copy');
+        alert("代碼已生成並複製！請發送到新設備並在「導入」處粘貼。");
+    }
+
+    function importData() {
+        const val = document.getElementById('syncData').value.trim();
+        if (!val) {
+            alert("請先粘貼代碼。");
+            return;
+        }
+        try {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
+            if (Array.isArray(decoded)) {
+                if (confirm("導入將覆蓋目前的生詞本，確定嗎？")) {
+                    favorites = decoded;
+                    localStorage.setItem('hkSchool_WordBank', JSON.stringify(favorites));
+                    showFavorites();
+                    updateUI();
+                    alert("導入成功！");
+                    document.getElementById('syncData').value = "";
+                }
+            }
+        } catch (e) {
+            alert("無效的備份代碼，請重新檢查。");
+        }
+    }
+
     function enterFavMode() {
         if (favorites.length === 0) {
             alert("你的生詞本還沒有單詞喔！");
@@ -304,11 +366,8 @@
         if (idx > -1) {
             favorites.splice(idx, 1);
             if (isFavMode) {
-                if (favorites.length === 0) {
-                    exitFavMode();
-                } else {
-                    currentIndex = currentIndex % favorites.length;
-                }
+                if (favorites.length === 0) exitFavMode();
+                else currentIndex = currentIndex % favorites.length;
             }
         } else {
             favorites.push(item);
